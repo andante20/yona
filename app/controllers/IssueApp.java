@@ -897,6 +897,16 @@ public class IssueApp extends AbstractPostingApp {
         if(StringUtils.isNotEmpty(comment.parentCommentId)){
             comment.setParentComment(IssueComment.find.byId(Long.valueOf(comment.parentCommentId)));
         }
+
+        if(issue.comments.size() == 0) {
+            User user = User.find.byId(issue.authorId);
+            comment.previousContents = "From: " + "@" + user.loginId + "\n\n" + issue.body;
+        } else {
+            Comment previousComment = issue.comments.get(issue.comments.size() - 1);
+            User user = User.find.byId(previousComment.authorId);
+            comment.previousContents = "From: " + "@" + user.loginId + "\n\n" + previousComment.contents;
+        }
+
         Comment savedComment = saveComment(project, issue, comment);
 
         if( containsStateTransitionRequest() ){
