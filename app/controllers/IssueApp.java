@@ -37,6 +37,8 @@ import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.util.*;
 
+import static utils.JodaDateUtil.getOptionalShortDate;
+
 @AnonymousCheck
 public class IssueApp extends AbstractPostingApp {
     private static final String EXCEL_EXT = "xls";
@@ -900,11 +902,11 @@ public class IssueApp extends AbstractPostingApp {
 
         if(issue.comments.size() == 0) {
             User user = User.find.byId(issue.authorId);
-            comment.previousContents = "From: " + "@" + user.loginId + "\n\n" + issue.body;
+            comment.previousContents = getPrevious("Original issue", issue.body, issue.updatedDate, user.loginId);
         } else {
             Comment previousComment = issue.comments.get(issue.comments.size() - 1);
             User user = User.find.byId(previousComment.authorId);
-            comment.previousContents = "From: " + "@" + user.loginId + "\n\n" + previousComment.contents;
+            comment.previousContents = getPrevious("Previous comment", previousComment.contents, previousComment.createdDate, user.loginId);
         }
 
         Comment savedComment = saveComment(project, issue, comment);
@@ -920,6 +922,10 @@ public class IssueApp extends AbstractPostingApp {
         }
 
         return redirect(RouteUtil.getUrl(savedComment));
+    }
+
+    private static String getPrevious(String templateTitle, String contents, Date updatedDate, String authorLoginId) {
+        return "\n\n<br />\n\n--- " + templateTitle + " from @" + authorLoginId + "  " + getOptionalShortDate(updatedDate) + " ---\n\n<br />\n\n" + contents;
     }
 
     // Just made for compatibility. No meanings.

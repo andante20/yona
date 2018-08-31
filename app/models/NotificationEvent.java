@@ -53,7 +53,6 @@ import static models.enumeration.EventType.*;
 @Entity
 public class NotificationEvent extends Model implements INotificationEvent {
     private static final long serialVersionUID = 1L;
-    public static final String BR_PREVIOUS_CONTENTS_BR = "\n\n<br />\n\n--- Previous Contents ---\n\n<br />\n\n";
 
     @Id
     public Long id;
@@ -145,10 +144,10 @@ public class NotificationEvent extends Model implements INotificationEvent {
             case NEW_POSTING:
             case NEW_PULL_REQUEST:
             case NEW_COMMIT:
+            case COMMENT_UPDATED:
                 return newValue;
             case NEW_COMMENT:
-            case COMMENT_UPDATED:
-                return newValue + BR_PREVIOUS_CONTENTS_BR + oldValue;
+                return newValue + oldValue;
             case ISSUE_BODY_CHANGED:
             case POSTING_BODY_CHANGED:
                 return DiffUtil.getDiffText(oldValue, newValue);
@@ -242,7 +241,7 @@ public class NotificationEvent extends Model implements INotificationEvent {
             case POSTING_BODY_CHANGED:
                 return DiffUtil.getDiffPlainText(oldValue, newValue);
             default:
-                return getMessage(lang).replaceAll(BR_PREVIOUS_CONTENTS_BR, "");
+                return getMessage(lang).replaceAll("\n\n<br />\n", "\n\n");
         }
     }
 
